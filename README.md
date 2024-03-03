@@ -264,8 +264,85 @@ centos7                    : ok=3    changed=0    unreachable=0    failed=0    s
 localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
+## Необязательная часть   
+1 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-vault decrypt group_vars/deb/examp.yml
+Vault password: 
+Decryption successful
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-vault decrypt group_vars/el/examp.yml
+Vault password: 
+Decryption successful
+user@study:~/home_work/ansible/ansible-01-base/playbook$ cat group_vars/deb/examp.yml
+---
+  some_fact: "deb default fact"
+user@study:~/home_work/ansible/ansible-01-base/playbook$ cat group_vars/el/examp.yml
+---
+  some_fact: "el default fact"
+user@study:~/home_work/ansible/ansible-01-base/playbook$ 
+```   
+2 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-vault encrypt_string
+New Vault password: 
+Confirm New Vault password: 
+Reading plaintext input from stdin. (ctrl-d to end input, twice if your content does not already have a newline)
+PaSSw0rd
+Encryption successful
+!vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34313833623763656139376363396337373366636436333932653938633734376161323436643134
+          3436313832353861646666393533623362303033643137310a396235306233616136623663633530
+          34653131326666356636623061613961383461656534613962396635643838656134356339316435
+          3164333161646438340a633038306563643261326433643765633563313466316632643066353134
+          3263
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/prod.yml site.yml --ask-vault-password
+Vault password: 
 
+PLAY [Print os facts] ********************************************************************************************************************************************
 
+TASK [Gathering Facts] *******************************************************************************************************************************************
+ok: [localhost]
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] **************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+ok: [localhost] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] ************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+ok: [localhost] => {
+    "msg": "PaSSw0rd"
+}
+
+PLAY RECAP *******************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+
+user@study:~/home_work/ansible/ansible-01-base/playbook$ cat group_vars/all/examp.yml 
+---
+  some_fact: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          34313833623763656139376363396337373366636436333932653938633734376161323436643134
+          3436313832353861646666393533623362303033643137310a396235306233616136623663633530
+          34653131326666356636623061613961383461656534613962396635643838656134356339316435
+          3164333161646438340a633038306563643261326433643765633563313466316632643066353134
+          3263user@study:~/home_work/ansible/ansible-01-base/playbook$ 
+```
 
 
 
