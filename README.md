@@ -76,5 +76,196 @@ e7688a16d717   pycontribs/ubuntu:latest   "sleep 6000000"   50 seconds ago   Up 
 1a6daf50f215   pycontribs/centos:7        "sleep 6000000"   3 minutes ago    Up 3 minutes              centos7
 user@study:~/home_work/ansible/ansible-01-base/playbook$ 
 ```
+4 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/prod.yml site.yml
+
+PLAY [Print os facts] ********************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************************
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] **************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] ************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el"
+}
+ok: [ubuntu] => {
+    "msg": "deb"
+}
+
+PLAY RECAP *******************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```   
+
+Значение **some_fact** для managed host "ubuntu" deb.
+Значение **some_fact** для managed host "centos7" el.   
+
+5,6 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/prod.yml site.yml
+
+PLAY [Print os facts] ********************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************************
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] **************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] ************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+
+PLAY RECAP *******************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0  
+```   
+7 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$  ansible-vault encrypt group_vars/deb/examp.yml
+New Vault password: 
+Confirm New Vault password: 
+Encryption successful
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-vault encrypt group_vars/el/examp.yml
+New Vault password: 
+Confirm New Vault password: 
+Encryption successful
+```
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ cat group_vars/deb/examp.yml
+$ANSIBLE_VAULT;1.1;AES256
+35383133633330663232316566613135366262336463316361376133613835393835666232663138
+6230323461303433626537336334653433386133386237660a356634376662323833666364373864
+35613135643539336137636532613036626266653561373364333834313361313035303034333861
+3030623961323866610a366663356239333063343031623838313038383532396264396138653834
+64356262336331623430343265613334383063353330346336373363323739626235343231636133
+6162393232643339343166626266666362616435643730666133
+user@study:~/home_work/ansible/ansible-01-base/playbook$ cat group_vars/el/examp.yml
+$ANSIBLE_VAULT;1.1;AES256
+63323462396330323362636263343031383465643461356136613065313630616237376236373332
+3362636437663266373137363037386332356230383666310a393763303233623166343733313466
+32323430653131336130393962613734323565663464373064653165383538653831356264666632
+6635613662303936330a396336306532623638393938373465656332636666666439366565393634
+36303865656331316161373664373730303539636339623530303063326137336237313532663534
+3136316536626464636161376430383564386235653239373466
+user@study:~/home_work/ansible/ansible-01-base/playbook$ 
+```   
+8 -   
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/prod.yml site.yml --ask-vault-password
+Vault password: 
+
+PLAY [Print os facts] ********************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************************
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] **************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] ************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+
+PLAY RECAP *******************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+9 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-doc -t connection --list | grep control
+ansible.builtin.local          execute on controller                       
+community.docker.nsenter       execute on host running controller container
+```
+Подходящий для работы на control node -    ansible.builtin.local   
+
+10 -   
+```yml
+---
+  el:
+    hosts:
+      centos7:
+        ansible_connection: docker
+  deb:
+    hosts:
+      ubuntu:
+        ansible_connection: docker
+  local:
+    hosts:
+      localhost:
+        ansible_connection: local
+
+```   
+11 -   
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/prod.yml site.yml --ask-vault-password
+Vault password: 
+
+PLAY [Print os facts] ********************************************************************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************************************************
+ok: [localhost]
+ok: [ubuntu]
+ok: [centos7]
+
+TASK [Print OS] **************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "CentOS"
+}
+ok: [ubuntu] => {
+    "msg": "Ubuntu"
+}
+ok: [localhost] => {
+    "msg": "Ubuntu"
+}
+
+TASK [Print fact] ************************************************************************************************************************************************
+ok: [centos7] => {
+    "msg": "el default fact"
+}
+ok: [ubuntu] => {
+    "msg": "deb default fact"
+}
+ok: [localhost] => {
+    "msg": "all default fact"
+}
+
+PLAY RECAP *******************************************************************************************************************************************************
+centos7                    : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+ubuntu                     : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+```
+
+
+
 
 
