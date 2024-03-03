@@ -1,7 +1,8 @@
 # Домашнее задание к занятию 1 «Введение в Ansible»
 ## Основная часть
-1.   
-``user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/test.yml site.yml 
+1 -  
+```
+user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/test.yml site.yml 
 
 PLAY [Print os facts] ********************************************************************************************************************************************
 
@@ -20,11 +21,12 @@ ok: [localhost] => {
 
 PLAY RECAP *******************************************************************************************************************************************************
 localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-`
 
 ```
-*some_fact* имеет значение 12.
-2.   
+
+**some_fact** имеет значение 12.   
+
+2 -   
 ```
 user@study:~/home_work/ansible/ansible-01-base/playbook$ ansible-playbook -i ./inventory/test.yml site.yml 
 
@@ -46,7 +48,7 @@ ok: [localhost] => {
 PLAY RECAP *******************************************************************************************************************************************************
 localhost                  : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 ```
-3.   
+3 - 
 ```
 user@study:~/home_work/ansible/ansible-01-base/playbook$ docker run -dit --name centos7 pycontribs/centos:7 sleep 6000000
 Unable to find image 'pycontribs/centos:7' locally
